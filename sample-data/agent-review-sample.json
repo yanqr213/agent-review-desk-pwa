@@ -1,0 +1,305 @@
+{
+  "version": "1.0",
+  "source": "sample-fixture",
+  "importedAt": "2026-06-08T02:00:00.000Z",
+  "items": [
+    {
+      "id": "checkout-auth-guards",
+      "project": "checkout-web",
+      "agent": "codex-a",
+      "title": "收银台登录态守卫与失败重试",
+      "summary": "代理补齐了 checkout 页面登录态检查，新增 401 重试和错误提示，但失败路径覆盖不足。",
+      "status": "needs-changes",
+      "risk": "high",
+      "score": 3,
+      "branch": "agent/codex-a/auth-guards",
+      "commit": "9f1a2b3",
+      "tags": ["auth", "checkout", "regression"],
+      "ci": {
+        "status": "failed",
+        "url": "",
+        "checks": [
+          {
+            "name": "unit",
+            "status": "passed",
+            "duration": "48s",
+            "details": "214 tests"
+          },
+          {
+            "name": "e2e-checkout",
+            "status": "failed",
+            "duration": "3m12s",
+            "details": "Guest redirect assertion failed"
+          }
+        ]
+      },
+      "files": [
+        {
+          "path": "src/routes/checkout.tsx",
+          "additions": 86,
+          "deletions": 24,
+          "risk": "high"
+        },
+        {
+          "path": "src/lib/session.ts",
+          "additions": 42,
+          "deletions": 9,
+          "risk": "medium"
+        },
+        {
+          "path": "tests/e2e/checkout.spec.ts",
+          "additions": 31,
+          "deletions": 4,
+          "risk": "low"
+        }
+      ],
+      "notes": [
+        {
+          "id": "note-checkout-1",
+          "author": "reviewer",
+          "createdAt": "2026-06-08T02:12:00.000Z",
+          "text": "需要人工验证未登录用户和过期 session 的跳转顺序。"
+        }
+      ]
+    },
+    {
+      "id": "billing-ledger-migration",
+      "project": "billing-core",
+      "agent": "codex-b",
+      "title": "账单流水表迁移与回填脚本",
+      "summary": "新增 ledger_entries 表、回填脚本和只读校验命令，涉及历史账务数据。",
+      "status": "blocked",
+      "risk": "critical",
+      "score": 2,
+      "branch": "agent/codex-b/ledger-migration",
+      "commit": "b7c44de",
+      "tags": ["database", "migration", "billing"],
+      "ci": {
+        "status": "passed",
+        "checks": [
+          {
+            "name": "unit",
+            "status": "passed",
+            "duration": "1m02s"
+          },
+          {
+            "name": "migration-dry-run",
+            "status": "passed",
+            "duration": "2m46s",
+            "details": "fixture database only"
+          }
+        ]
+      },
+      "files": [
+        {
+          "path": "db/migrations/2026060801_create_ledger_entries.sql",
+          "additions": 154,
+          "deletions": 0,
+          "risk": "critical"
+        },
+        {
+          "path": "scripts/backfill-ledger.js",
+          "additions": 212,
+          "deletions": 0,
+          "risk": "high"
+        },
+        {
+          "path": "docs/runbooks/billing-ledger.md",
+          "additions": 96,
+          "deletions": 8,
+          "risk": "medium"
+        }
+      ],
+      "notes": [
+        {
+          "id": "note-billing-1",
+          "author": "lead",
+          "createdAt": "2026-06-08T02:20:00.000Z",
+          "text": "等待 DBA 签字，生产回填必须追加批次断点恢复说明。"
+        }
+      ]
+    },
+    {
+      "id": "docs-agent-handoff",
+      "project": "platform-docs",
+      "agent": "codex-c",
+      "title": "多代理交接模板文档",
+      "summary": "补充任务摘要、风险标注、CI 链接和人工复核 checklist 模板。",
+      "status": "approved",
+      "risk": "low",
+      "score": 5,
+      "branch": "agent/codex-c/handoff-docs",
+      "commit": "55cc01a",
+      "tags": ["docs", "process"],
+      "ci": {
+        "status": "passed",
+        "checks": [
+          {
+            "name": "markdownlint",
+            "status": "passed",
+            "duration": "12s"
+          }
+        ]
+      },
+      "files": [
+        {
+          "path": "docs/agent-handoff-template.md",
+          "additions": 74,
+          "deletions": 11,
+          "risk": "low"
+        }
+      ],
+      "notes": [
+        "内容可直接合并，后续再补截图示例。"
+      ]
+    },
+    {
+      "id": "search-index-worker",
+      "project": "knowledge-base",
+      "agent": "codex-a",
+      "title": "离线搜索索引 Worker",
+      "summary": "将知识库搜索索引构建移入 Web Worker，并保存索引版本号。",
+      "status": "reviewing",
+      "risk": "medium",
+      "score": null,
+      "branch": "agent/codex-a/search-worker",
+      "commit": "8ea0129",
+      "tags": ["worker", "offline", "search"],
+      "ci": {
+        "status": "running",
+        "checks": [
+          {
+            "name": "unit",
+            "status": "passed",
+            "duration": "39s"
+          },
+          {
+            "name": "browser-smoke",
+            "status": "running",
+            "duration": "1m04s"
+          }
+        ]
+      },
+      "files": [
+        {
+          "path": "src/search/index-worker.ts",
+          "additions": 137,
+          "deletions": 18,
+          "risk": "medium"
+        },
+        {
+          "path": "src/search/index-store.ts",
+          "additions": 54,
+          "deletions": 16,
+          "risk": "medium"
+        },
+        {
+          "path": "tests/search/index-worker.test.ts",
+          "additions": 92,
+          "deletions": 0,
+          "risk": "low"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "id": "admin-bulk-actions",
+      "project": "ops-console",
+      "agent": "swe-agent-1",
+      "title": "管理员批量操作确认流",
+      "summary": "为禁用用户、重发邀请、导出审计日志添加统一确认流和权限提示。",
+      "status": "new",
+      "risk": "high",
+      "score": null,
+      "branch": "agent/swe-agent-1/admin-bulk-actions",
+      "commit": "1ca778d",
+      "tags": ["admin", "permission", "audit"],
+      "ci": {
+        "status": "passed",
+        "checks": [
+          {
+            "name": "unit",
+            "status": "passed",
+            "duration": "52s"
+          },
+          {
+            "name": "accessibility",
+            "status": "passed",
+            "duration": "28s"
+          }
+        ]
+      },
+      "files": [
+        {
+          "path": "src/admin/BulkActionDialog.tsx",
+          "additions": 128,
+          "deletions": 33,
+          "risk": "high"
+        },
+        {
+          "path": "src/admin/permissions.ts",
+          "additions": 46,
+          "deletions": 12,
+          "risk": "medium"
+        },
+        {
+          "path": "tests/admin/bulk-actions.test.tsx",
+          "additions": 118,
+          "deletions": 0,
+          "risk": "low"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "id": "mobile-theme-tokens",
+      "project": "design-system",
+      "agent": "codex-d",
+      "title": "移动端主题 token 收敛",
+      "summary": "整理按钮、输入框、状态色 token，移除重复 CSS 变量。",
+      "status": "approved",
+      "risk": "medium",
+      "score": 4,
+      "branch": "agent/codex-d/mobile-theme-tokens",
+      "commit": "c9177fa",
+      "tags": ["css", "mobile", "design-system"],
+      "ci": {
+        "status": "passed",
+        "checks": [
+          {
+            "name": "visual-regression",
+            "status": "passed",
+            "duration": "4m08s"
+          },
+          {
+            "name": "unit",
+            "status": "passed",
+            "duration": "21s"
+          }
+        ]
+      },
+      "files": [
+        {
+          "path": "src/styles/tokens.css",
+          "additions": 64,
+          "deletions": 81,
+          "risk": "medium"
+        },
+        {
+          "path": "src/components/Button.css",
+          "additions": 26,
+          "deletions": 43,
+          "risk": "low"
+        }
+      ],
+      "notes": [
+        {
+          "id": "note-theme-1",
+          "author": "designer",
+          "createdAt": "2026-06-08T02:30:00.000Z",
+          "text": "已对齐移动端主流程截图。"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title">
+  <title id="title">Agent Review Desk</title>
+  <rect width="128" height="128" rx="24" fill="#1f6feb"/>
+  <path d="M28 33h72a8 8 0 0 1 8 8v50a8 8 0 0 1-8 8H28a8 8 0 0 1-8-8V41a8 8 0 0 1 8-8Z" fill="#f8fafc"/>
+  <path d="M34 49h35M34 64h52M34 79h27" stroke="#1f2937" stroke-width="8" stroke-linecap="round"/>
+  <path d="m83 76 10 10 20-26" fill="none" stroke="#0f9f6e" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

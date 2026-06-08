@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#1f6feb">
+    <meta name="description" content="离线优先的 AI 编码代理产物评审台。">
+    <title>Agent Review Desk</title>
+    <link rel="manifest" href="./manifest.webmanifest">
+    <link rel="icon" href="./assets/icon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="./styles.css">
+    <script type="module" src="./src/app.js"></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <img src="./assets/icon.svg" alt="" class="brand-icon">
+          <div>
+            <h1>Agent Review Desk</h1>
+            <p id="storage-status">本地离线工作台</p>
+          </div>
+        </div>
+        <div class="top-actions" role="toolbar" aria-label="主操作">
+          <button class="button ghost" id="sample-button" type="button" title="导入内置样例">样例</button>
+          <label class="button ghost file-action" title="导入 JSON 文件">
+            导入
+            <input id="file-input" type="file" accept="application/json,.json">
+          </label>
+          <button class="button ghost" id="paste-button" type="button" title="粘贴 JSON 文本">粘贴</button>
+          <button class="button primary" id="export-md-button" type="button" title="导出 Markdown 报告">导出 MD</button>
+          <button class="button primary" id="export-json-button" type="button" title="导出 JSON 报告">导出 JSON</button>
+        </div>
+      </header>
+
+      <main class="workspace">
+        <section class="control-band" aria-label="筛选和统计">
+          <div class="filters">
+            <label class="field search-field">
+              <span>搜索</span>
+              <input id="query-input" type="search" placeholder="标题、项目、文件、标签、意见">
+            </label>
+            <label class="field">
+              <span>项目</span>
+              <select id="project-filter">
+                <option value="">全部项目</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>状态</span>
+              <select id="status-filter">
+                <option value="">全部状态</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>风险</span>
+              <select id="risk-filter">
+                <option value="">全部风险</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>CI</span>
+              <select id="ci-filter">
+                <option value="">全部 CI</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>分组</span>
+              <select id="group-select">
+                <option value="status">按状态</option>
+                <option value="risk">按风险</option>
+                <option value="project">按项目</option>
+                <option value="agent">按代理</option>
+                <option value="ci">按 CI</option>
+              </select>
+            </label>
+            <button class="button ghost compact" id="reset-filters-button" type="button">清除筛选</button>
+          </div>
+          <div class="metrics" id="metrics" aria-live="polite"></div>
+        </section>
+
+        <section class="desk-layout">
+          <section class="board" aria-label="评审看板">
+            <div class="board-header">
+              <div>
+                <h2>评审队列</h2>
+                <p id="result-count">0 条记录</p>
+              </div>
+              <button class="button danger ghost compact" id="clear-button" type="button">清空本地数据</button>
+            </div>
+            <div id="error-panel" class="notice error" hidden></div>
+            <div id="empty-state" class="empty-state">
+              <h2>导入 agent 产物开始评审</h2>
+              <p>支持 JSON 文件、粘贴文本和内置样例。所有数据保存在浏览器本地，可离线继续评分和写复核意见。</p>
+              <div class="empty-actions">
+                <button class="button primary" id="empty-sample-button" type="button">载入样例数据</button>
+                <button class="button ghost" id="empty-paste-button" type="button">粘贴 JSON</button>
+              </div>
+            </div>
+            <div id="no-results" class="empty-state subtle" hidden>
+              <h2>没有匹配结果</h2>
+              <p>调整搜索词或筛选条件后再试。</p>
+            </div>
+            <div id="group-container" class="groups"></div>
+          </section>
+
+          <aside class="detail-panel" aria-label="条目详情">
+            <div id="detail-empty" class="detail-empty">
+              <h2>选择一个条目</h2>
+              <p>查看摘要、文件、CI 检查，更新状态、风险、评分和复核意见。</p>
+            </div>
+            <form id="detail-form" class="detail-form" hidden>
+              <div class="detail-heading">
+                <div>
+                  <p class="eyebrow" id="detail-project"></p>
+                  <h2 id="detail-title"></h2>
+                </div>
+                <span class="risk-pill" id="detail-risk-pill"></span>
+              </div>
+              <p class="summary" id="detail-summary"></p>
+              <dl class="meta-list" id="detail-meta"></dl>
+              <div class="edit-grid">
+                <label class="field">
+                  <span>状态</span>
+                  <select id="detail-status"></select>
+                </label>
+                <label class="field">
+                  <span>风险</span>
+                  <select id="detail-risk"></select>
+                </label>
+                <label class="field">
+                  <span>评分</span>
+                  <select id="detail-score">
+                    <option value="">未评分</option>
+                    <option value="1">1 - 高风险退回</option>
+                    <option value="2">2 - 需大量修改</option>
+                    <option value="3">3 - 可继续跟进</option>
+                    <option value="4">4 - 小修可过</option>
+                    <option value="5">5 - 质量良好</option>
+                  </select>
+                </label>
+              </div>
+              <section class="detail-section">
+                <h3>变更文件</h3>
+                <ul class="file-list" id="detail-files"></ul>
+              </section>
+              <section class="detail-section">
+                <h3>CI 检查</h3>
+                <ul class="check-list" id="detail-checks"></ul>
+              </section>
+              <section class="detail-section">
+                <h3>复核意见</h3>
+                <ul class="note-list" id="detail-notes"></ul>
+                <label class="field">
+                  <span>新增意见</span>
+                  <textarea id="note-input" rows="4" placeholder="记录需要人工复核、回归验证或合并前确认的事项"></textarea>
+                </label>
+                <button class="button primary full" id="add-note-button" type="submit">保存意见与修改</button>
+              </section>
+            </form>
+          </aside>
+        </section>
+      </main>
+    </div>
+
+    <dialog id="paste-dialog" class="dialog">
+      <form method="dialog" id="paste-form">
+        <div class="dialog-header">
+          <h2>粘贴 JSON 数据</h2>
+          <button class="icon-button" value="cancel" aria-label="关闭" type="submit">×</button>
+        </div>
+        <textarea id="paste-textarea" rows="12" spellcheck="false" placeholder='{"items":[{"id":"task-1","title":"..."}]}'></textarea>
+        <div class="dialog-actions">
+          <button class="button ghost" value="cancel" type="submit">取消</button>
+          <button class="button primary" id="paste-import-button" value="default" type="submit">导入</button>
+        </div>
+      </form>
+    </dialog>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>
