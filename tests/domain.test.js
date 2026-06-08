@@ -307,3 +307,9 @@ test("sample fixture parses successfully", async () => {
   assert.equal(dataset.items.length, 6);
   assert.equal(dataset.items.some((item) => item.risk === "critical"), true);
 });
+
+test("sample fixture is readable in repository previews", async () => {
+  const sample = await readFile(join(root, "sample-data", "agent-review-sample.json"), "utf8");
+  assert.equal(sample.includes("Checkout auth guards"), true);
+  assert.equal(/[�]|鏀|绂|宸|涓|锛/.test(sample), false);
+});

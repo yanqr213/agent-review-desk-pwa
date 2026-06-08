@@ -164,6 +164,12 @@ async function importSample() {
   }
 }
 
+async function importSampleForDemoUrl() {
+  const params = new URLSearchParams(window.location.search);
+  if (!params.has("sample")) return;
+  await importSample();
+}
+
 async function handleFileInput(event) {
   const [file] = event.target.files;
   if (!file) return;
@@ -536,3 +542,5 @@ function registerServiceWorker() {
     });
   });
 }
+
+importSampleForDemoUrl();

@@ -2,6 +2,34 @@
 
 离线优先的浏览器评审台，面向经常并行运行多个 AI 编码代理的开发者。它可以导入 agent 产物、任务摘要、CI 结果和人工复核信息，按风险、状态、项目、代理或 CI 分组，完成评分、复核意见和 JSON/Markdown 报告导出。
 
+![Agent Review Desk screenshot](assets/screenshot.png)
+
+## 30 秒试用
+
+```bash
+npm install
+npm test
+npm run validate:sample
+npm run preview
+```
+
+打开：
+
+```text
+http://localhost:4173/?sample=1
+```
+
+`?sample=1` 会自动载入内置样例，适合截图、演示和第一次体验。应用不需要后端服务，导入的数据只保存在当前浏览器的 `localStorage`。
+
+## 它解决什么问题
+
+当你同时让 Codex、Claude Code、Cursor 或内部 agent 改多个分支时，review 通常会变成一堆聊天记录、CI 链接和临时 JSON。Agent Review Desk 把这些交付物放到一个本地看板里：
+
+- 先看阻塞、高风险、CI 失败的 agent 输出。
+- 给每个交付物打分、改状态、补人工复核意见。
+- 按项目、风险、状态、agent、CI 分组扫一遍。
+- 导出 Markdown 给团队同步，或导出 JSON 给后续自动化。
+
 首屏就是可用工具，不是营销页。项目采用原生 HTML/CSS/JavaScript、PWA manifest、Service Worker 和 Node 内置测试运行器，无前端框架运行时依赖。
 
 ## 使用场景
@@ -37,6 +65,16 @@ PORT=8080 npm run preview
 
 ```powershell
 $env:PORT=8080; npm run preview
+```
+
+## 静态托管
+
+这是零构建静态 PWA，可以直接托管到 GitHub Pages、Cloudflare Pages、Netlify、Vercel 静态站点或任意内网静态服务器。发布时托管仓库根目录即可；`index.html`、`styles.css`、`src/`、`sample-data/`、`manifest.webmanifest` 和 `sw.js` 都是运行所需文件。
+
+建议 demo 链接使用：
+
+```text
+https://your-site.example/agent-review-desk-pwa/?sample=1
 ```
 
 ## 功能
@@ -130,6 +168,18 @@ $env:PORT=8080; npm run preview
 5. 点选条目，在右侧更新状态、风险、评分，写入复核意见。
 6. 导出 Markdown 作为评审报告，或导出 JSON 给后续自动化。
 
+## 从 agent JSON 到 Markdown 报告
+
+最短流程：
+
+1. 让 agent 或 CI 产出 `items` JSON。
+2. 在应用里导入文件、粘贴 JSON，或用 `?sample=1` 查看样例结构。
+3. 筛选 `CI failed`、`critical`、`blocked`。
+4. 在右侧详情面板保存复核状态、风险和评分。
+5. 点击“导出 MD”，得到当前筛选结果的 review report。
+
+示例导出会包含总览、分组、每个条目的风险、CI、文件变更和复核意见。
+
 快捷键：
 
 - `Ctrl/Command + K`：聚焦搜索。
@@ -186,6 +236,25 @@ npm run preview
 
 Agent Review Desk PWA is an offline-first browser review desk for developers who run multiple AI coding agents in parallel. It imports agent outputs, task summaries, CI results, changed files, scores, and human review notes, then groups the work by risk, status, project, agent, or CI state.
 
+![Agent Review Desk screenshot](assets/screenshot.png)
+
+### 30-Second Tryout
+
+```bash
+npm install
+npm test
+npm run validate:sample
+npm run preview
+```
+
+Open:
+
+```text
+http://localhost:4173/?sample=1
+```
+
+The `?sample=1` URL loads bundled sample data automatically. The app has no backend and stores imported review data only in the current browser's `localStorage`.
+
 The first screen is the actual tool, not a marketing page. The project uses native HTML/CSS/JavaScript, a Web App Manifest, a Service Worker, and Node's built-in test runner. There are no frontend framework runtime dependencies.
 
 ### Use Cases
@@ -195,6 +264,10 @@ The first screen is the actual tool, not a marketing page. The project uses nati
 - Keep review status, scores, and notes in browser-local storage instead of scattered chat logs.
 - Export Markdown for team handoff or JSON for downstream automation.
 - Review sensitive summaries offline without uploading data to external services.
+
+### Static Hosting
+
+This is a zero-build static PWA. Host the repository root on GitHub Pages, Cloudflare Pages, Netlify, Vercel static hosting, or an internal static server. Use `?sample=1` for public demos and screenshots.
 
 ### Install
 

@@ -7,8 +7,8 @@
       "id": "checkout-auth-guards",
       "project": "checkout-web",
       "agent": "codex-a",
-      "title": "收银台登录态守卫与失败重试",
-      "summary": "代理补齐了 checkout 页面登录态检查，新增 401 重试和错误提示，但失败路径覆盖不足。",
+      "title": "Checkout auth guards and failed-session retry",
+      "summary": "Adds login-state checks, 401 retry handling, and error messaging. The guest redirect path still needs manual validation.",
       "status": "needs-changes",
       "risk": "high",
       "score": 3,
@@ -58,7 +58,7 @@
           "id": "note-checkout-1",
           "author": "reviewer",
           "createdAt": "2026-06-08T02:12:00.000Z",
-          "text": "需要人工验证未登录用户和过期 session 的跳转顺序。"
+          "text": "Replay the unauthenticated and expired-session paths before approving."
         }
       ]
     },
@@ -66,8 +66,8 @@
       "id": "billing-ledger-migration",
       "project": "billing-core",
       "agent": "codex-b",
-      "title": "账单流水表迁移与回填脚本",
-      "summary": "新增 ledger_entries 表、回填脚本和只读校验命令，涉及历史账务数据。",
+      "title": "Ledger table migration and backfill dry run",
+      "summary": "Creates ledger_entries, adds a backfill script, and ships a read-only validation command for historical billing data.",
       "status": "blocked",
       "risk": "critical",
       "score": 2,
@@ -86,7 +86,7 @@
             "name": "migration-dry-run",
             "status": "passed",
             "duration": "2m46s",
-            "details": "fixture database only"
+            "details": "Fixture database only"
           }
         ]
       },
@@ -115,7 +115,7 @@
           "id": "note-billing-1",
           "author": "lead",
           "createdAt": "2026-06-08T02:20:00.000Z",
-          "text": "等待 DBA 签字，生产回填必须追加批次断点恢复说明。"
+          "text": "Waiting for DBA sign-off. Production backfill still needs batch checkpoint notes."
         }
       ]
     },
@@ -123,8 +123,8 @@
       "id": "docs-agent-handoff",
       "project": "platform-docs",
       "agent": "codex-c",
-      "title": "多代理交接模板文档",
-      "summary": "补充任务摘要、风险标注、CI 链接和人工复核 checklist 模板。",
+      "title": "Multi-agent handoff template documentation",
+      "summary": "Adds task summaries, risk labels, CI links, and a human review checklist template.",
       "status": "approved",
       "risk": "low",
       "score": 5,
@@ -150,15 +150,15 @@
         }
       ],
       "notes": [
-        "内容可直接合并，后续再补截图示例。"
+        "Ready to merge. Add screenshots later if the workflow becomes visual."
       ]
     },
     {
       "id": "search-index-worker",
       "project": "knowledge-base",
       "agent": "codex-a",
-      "title": "离线搜索索引 Worker",
-      "summary": "将知识库搜索索引构建移入 Web Worker，并保存索引版本号。",
+      "title": "Offline search index worker",
+      "summary": "Moves knowledge-base index building into a Web Worker and persists the index version.",
       "status": "reviewing",
       "risk": "medium",
       "score": null,
@@ -206,8 +206,8 @@
       "id": "admin-bulk-actions",
       "project": "ops-console",
       "agent": "swe-agent-1",
-      "title": "管理员批量操作确认流",
-      "summary": "为禁用用户、重发邀请、导出审计日志添加统一确认流和权限提示。",
+      "title": "Admin bulk action confirmation flow",
+      "summary": "Adds a shared confirmation flow and permission hints for disabling users, resending invites, and exporting audit logs.",
       "status": "new",
       "risk": "high",
       "score": null,
@@ -255,8 +255,8 @@
       "id": "mobile-theme-tokens",
       "project": "design-system",
       "agent": "codex-d",
-      "title": "移动端主题 token 收敛",
-      "summary": "整理按钮、输入框、状态色 token，移除重复 CSS 变量。",
+      "title": "Mobile theme token cleanup",
+      "summary": "Consolidates button, input, and state color tokens, and removes duplicate CSS variables.",
       "status": "approved",
       "risk": "medium",
       "score": 4,
@@ -297,7 +297,7 @@
           "id": "note-theme-1",
           "author": "designer",
           "createdAt": "2026-06-08T02:30:00.000Z",
-          "text": "已对齐移动端主流程截图。"
+          "text": "Mobile screenshots match the design review checklist."
         }
       ]
     }
