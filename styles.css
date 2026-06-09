@@ -245,7 +245,7 @@ textarea {
 
 .metrics {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 1px;
   overflow: hidden;
   background: var(--line);
@@ -384,7 +384,7 @@ textarea {
 
 .task-row {
   display: grid;
-  grid-template-columns: minmax(220px, 1.4fr) minmax(110px, 0.5fr) minmax(110px, 0.5fr) minmax(130px, 0.6fr) minmax(84px, 0.35fr);
+  grid-template-columns: minmax(220px, 1.4fr) minmax(110px, 0.5fr) minmax(110px, 0.5fr) minmax(130px, 0.6fr) minmax(120px, 0.55fr) minmax(84px, 0.35fr);
   gap: 10px;
   width: 100%;
   border: 0;
@@ -444,12 +444,14 @@ textarea {
 
 .pill.status-blocked,
 .pill.ci-failed,
+.pill.triage-now,
 .risk-pill.risk-critical {
   background: #fff1f2;
   color: var(--critical);
 }
 
 .pill.status-needs-changes,
+.pill.triage-next,
 .risk-pill.risk-high {
   background: #fff7ed;
   color: var(--warning);
@@ -457,6 +459,7 @@ textarea {
 
 .pill.status-approved,
 .pill.ci-passed,
+.pill.triage-done,
 .risk-pill.risk-low {
   background: #ecfdf3;
   color: var(--success);
@@ -464,6 +467,7 @@ textarea {
 
 .pill.status-reviewing,
 .pill.ci-running,
+.pill.triage-watch,
 .risk-pill.risk-medium {
   background: #eff6ff;
   color: var(--primary);

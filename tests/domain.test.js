@@ -8,6 +8,8 @@ import {
   clampScore,
   filterItems,
   getDashboardStats,
+  getTriageLane,
+  getTriageSummary,
   getUniqueOptions,
   groupItems,
   inferRisk,
@@ -202,6 +204,18 @@ test("groupItems groups by project", () => {
   assert.deepEqual(groupItems(items, "project").map((group) => group.key), ["a", "b"]);
 });
 
+test("groupItems groups by triage priority", () => {
+  const items = normalizeDataset({
+    items: [
+      fixture({ id: "watch", status: "new", risk: "low", ci: { status: "passed" } }),
+      fixture({ id: "now", status: "blocked" }),
+      fixture({ id: "done", status: "approved" })
+    ]
+  }).items;
+
+  assert.deepEqual(groupItems(items, "triage").map((group) => group.key), ["now", "watch", "done"]);
+});
+
 test("sortItems prioritizes higher risk", () => {
   const items = normalizeDataset({
     items: [
@@ -226,6 +240,29 @@ test("getDashboardStats summarizes score and attention counts", () => {
   assert.equal(stats.blockedCount, 1);
   assert.equal(stats.needsAttention, 1);
   assert.equal(stats.averageScore, 3);
+  assert.equal(stats.byTriage.now, 1);
+  assert.equal(stats.byTriage.done, 1);
+});
+
+test("getTriageLane prioritizes failed CI and critical work", () => {
+  assert.equal(getTriageLane(normalizeItem({ title: "CI failed", ci: { status: "failed" } })), "now");
+  assert.equal(getTriageLane(normalizeItem({ title: "Critical", risk: "critical", ci: { status: "passed" } })), "now");
+  assert.equal(getTriageLane(normalizeItem({ title: "Approved", status: "approved", risk: "critical", ci: { status: "failed" } })), "done");
+});
+
+test("getTriageSummary returns ordered triage lanes", () => {
+  const items = normalizeDataset({
+    items: [
+      fixture({ id: "approved", status: "approved" }),
+      fixture({ id: "blocked", status: "blocked" }),
+      fixture({ id: "watch", status: "new", risk: "low", ci: { status: "passed" } })
+    ]
+  }).items;
+  const summary = getTriageSummary(items);
+  assert.deepEqual(summary.lanes.map((lane) => lane.key), ["now", "next", "watch", "done"]);
+  assert.equal(summary.stats.now, 1);
+  assert.equal(summary.stats.watch, 1);
+  assert.equal(summary.stats.done, 1);
 });
 
 test("getDashboardStats totals file changes", () => {

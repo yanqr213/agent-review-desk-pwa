@@ -21,6 +21,13 @@ export const CI_DEFINITIONS = Object.freeze({
   unknown: { label: "未知", order: 50 }
 });
 
+export const TRIAGE_DEFINITIONS = Object.freeze({
+  now: { label: "现在处理", order: 10 },
+  next: { label: "下一批", order: 20 },
+  watch: { label: "观察", order: 30 },
+  done: { label: "已完成", order: 40 }
+});
+
 const STATUS_ALIASES = new Map([
   ["todo", "new"],
   ["pending", "new"],
@@ -346,6 +353,7 @@ export function getDashboardStats(items) {
     byStatus: createZeroCount(Object.keys(STATUS_DEFINITIONS)),
     byRisk: createZeroCount(Object.keys(RISK_DEFINITIONS)),
     byCi: createZeroCount(Object.keys(CI_DEFINITIONS)),
+    byTriage: createZeroCount(Object.keys(TRIAGE_DEFINITIONS)),
     averageScore: 0,
     scoredCount: 0,
     blockedCount: 0,
@@ -360,6 +368,7 @@ export function getDashboardStats(items) {
     emptyStats.byStatus[item.status] += 1;
     emptyStats.byRisk[item.risk] += 1;
     emptyStats.byCi[item.ci.status] += 1;
+    emptyStats.byTriage[getTriageLane(item)] += 1;
     emptyStats.changedFiles += item.files.length;
     emptyStats.additions += item.files.reduce((sum, file) => sum + file.additions, 0);
     emptyStats.deletions += item.files.reduce((sum, file) => sum + file.deletions, 0);
@@ -376,6 +385,29 @@ export function getDashboardStats(items) {
 
   emptyStats.averageScore = emptyStats.scoredCount ? round(scoreSum / emptyStats.scoredCount, 1) : 0;
   return emptyStats;
+}
+
+export function getTriageLane(item) {
+  if (item.status === "approved") return "done";
+  if (item.status === "blocked" || item.ci.status === "failed" || item.risk === "critical") return "now";
+  if (item.status === "needs-changes" || item.risk === "high" || item.ci.status === "running") return "next";
+  return "watch";
+}
+
+export function getTriageSummary(items) {
+  const stats = createZeroCount(Object.keys(TRIAGE_DEFINITIONS));
+  const ordered = sortItems(items);
+  for (const item of ordered) {
+    stats[getTriageLane(item)] += 1;
+  }
+  return {
+    stats,
+    lanes: Object.keys(TRIAGE_DEFINITIONS).map((key) => ({
+      key,
+      label: TRIAGE_DEFINITIONS[key].label,
+      items: ordered.filter((item) => getTriageLane(item) === key)
+    }))
+  };
 }
 
 export function getUniqueOptions(items) {
@@ -518,6 +550,7 @@ function inferCiStatusFromChecks(checks) {
 }
 
 function createGroupKeyGetter(groupBy) {
+  if (groupBy === "triage") return (item) => getTriageLane(item);
   if (groupBy === "project") return (item) => item.project;
   if (groupBy === "risk") return (item) => item.risk;
   if (groupBy === "agent") return (item) => item.agent;
@@ -526,6 +559,7 @@ function createGroupKeyGetter(groupBy) {
 }
 
 function formatGroupLabel(groupBy, key) {
+  if (groupBy === "triage") return TRIAGE_DEFINITIONS[key]?.label || key;
   if (groupBy === "status") return STATUS_DEFINITIONS[key]?.label || key;
   if (groupBy === "risk") return `${RISK_DEFINITIONS[key]?.label || key}风险`;
   if (groupBy === "ci") return `CI ${CI_DEFINITIONS[key]?.label || key}`;
@@ -533,6 +567,7 @@ function formatGroupLabel(groupBy, key) {
 }
 
 function compareGroup(groupBy, keyA, keyB) {
+  if (groupBy === "triage") return TRIAGE_DEFINITIONS[keyA].order - TRIAGE_DEFINITIONS[keyB].order;
   if (groupBy === "status") return STATUS_DEFINITIONS[keyA].order - STATUS_DEFINITIONS[keyB].order;
   if (groupBy === "risk") return RISK_DEFINITIONS[keyB].score - RISK_DEFINITIONS[keyA].score;
   if (groupBy === "ci") return CI_DEFINITIONS[keyA].order - CI_DEFINITIONS[keyB].order;

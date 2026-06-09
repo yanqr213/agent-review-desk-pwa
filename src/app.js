@@ -2,9 +2,11 @@ import {
   CI_DEFINITIONS,
   RISK_DEFINITIONS,
   STATUS_DEFINITIONS,
+  TRIAGE_DEFINITIONS,
   addReviewNote,
   filterItems,
   getDashboardStats,
+  getTriageLane,
   getUniqueOptions,
   groupItems,
   normalizeDataset,
@@ -331,7 +333,8 @@ function renderMetrics(items) {
     metricNode("条目", stats.total),
     metricNode("需关注", stats.needsAttention),
     metricNode("阻塞", stats.blockedCount),
-    metricNode("均分", stats.averageScore || "暂无")
+    metricNode("均分", stats.averageScore || "暂无"),
+    metricNode("现在处理", stats.byTriage.now)
   );
 }
 
@@ -367,6 +370,7 @@ function renderDetail() {
 
   elements.detailMeta.replaceChildren(
     metaNode("ID", item.id),
+    metaNode("处理优先级", TRIAGE_DEFINITIONS[getTriageLane(item)].label),
     metaNode("分支", item.branch || "未提供"),
     metaNode("提交", item.commit || "未提供"),
     metaNode("标签", item.tags.length ? item.tags.join("、") : "无"),
@@ -414,6 +418,7 @@ function taskRow(item) {
     <span><span class="pill status-${item.status}">${STATUS_DEFINITIONS[item.status].label}</span></span>
     <span><span class="pill risk-${item.risk}">${RISK_DEFINITIONS[item.risk].label}风险</span></span>
     <span><span class="pill ci-${item.ci.status}">CI ${CI_DEFINITIONS[item.ci.status].label}</span></span>
+    <span><span class="pill triage-${getTriageLane(item)}">${TRIAGE_DEFINITIONS[getTriageLane(item)].label}</span></span>
     <span><span class="pill">${item.score ? `${item.score}/5` : "未评分"}</span></span>
   `;
 

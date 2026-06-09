@@ -26,6 +26,7 @@ http://localhost:4173/?sample=1
 当你同时让 Codex、Claude Code、Cursor 或内部 agent 改多个分支时，review 通常会变成一堆聊天记录、CI 链接和临时 JSON。Agent Review Desk 把这些交付物放到一个本地看板里：
 
 - 先看阻塞、高风险、CI 失败的 agent 输出。
+- 自动把条目分到“现在处理 / 下一批 / 观察 / 已完成”，减少人工排序成本。
 - 给每个交付物打分、改状态、补人工复核意见。
 - 按项目、风险、状态、agent、CI 分组扫一遍。
 - 导出 Markdown 给团队同步，或导出 JSON 给后续自动化。
@@ -82,7 +83,7 @@ https://your-site.example/agent-review-desk-pwa/?sample=1
 - 导入 JSON 文件、粘贴 JSON 文本、载入内置样例。
 - 按标题、项目、代理、分支、提交、摘要、文件路径、标签、CI、复核意见搜索。
 - 按项目、状态、风险、CI 筛选。
-- 按状态、风险、项目、代理、CI 分组显示评审队列。
+- 按状态、处理优先级、风险、项目、代理、CI 分组显示评审队列。
 - 看板统计条目数、需关注数、阻塞数、平均评分。
 - 查看每个条目的摘要、元数据、变更文件、CI 检查和历史复核意见。
 - 修改状态、风险、评分，新增复核意见。
@@ -179,6 +180,19 @@ https://your-site.example/agent-review-desk-pwa/?sample=1
 5. 点击“导出 MD”，得到当前筛选结果的 review report。
 
 示例导出会包含总览、分组、每个条目的风险、CI、文件变更和复核意见。
+
+## 自动处理优先级
+
+Agent Review Desk 会根据状态、风险和 CI 自动生成 triage lane：
+
+| Lane | 规则 | 用途 |
+| --- | --- | --- |
+| 现在处理 | `blocked`、CI failed 或 `critical` 风险 | 先排查阻塞、失败和高爆炸半径交付 |
+| 下一批 | `needs-changes`、`high` 风险或 CI running | 需要继续跟进，但不一定马上打断 |
+| 观察 | 普通待评审、低/中风险、CI 未知或通过 | 保持在队列里等待常规 review |
+| 已完成 | `approved` | 已通过但仍可进入导出记录 |
+
+看板可以按“处理优先级”分组，Markdown 导出也会包含“优先处理队列”，方便把当前最该看的 agent 交付直接发给团队。
 
 快捷键：
 
@@ -290,6 +304,8 @@ http://localhost:4173
 - Search titles, projects, agents, summaries, branches, commits, file paths, tags, CI states, and notes.
 - Filter by project, status, risk, and CI state.
 - Group by status, risk, project, agent, or CI.
+- Group by automatic triage priority, status, risk, project, agent, or CI.
+- Auto-classify review work into Now, Next, Watch, and Done lanes from status, risk, and CI signals.
 - Edit review status, risk, score, and notes.
 - Persist data in `localStorage`.
 - Export the current filtered set as Markdown or JSON.
@@ -299,6 +315,10 @@ http://localhost:4173
 ### Data Format
 
 The importer accepts either an array or an object with an `items` or `tasks` array. Required item data is intentionally small: provide a title plus any project, agent, risk, status, CI, files, tags, and notes you have. Missing risk can be inferred from CI status, file-level risk, tags, and change size.
+
+### Triage Lanes
+
+The desk derives a review lane for each item: Now for blocked, failed-CI, or critical work; Next for needs-changes, high-risk, or running-CI work; Watch for ordinary open items; Done for approved work. Markdown exports include a priority queue so teams can see what to review first without re-sorting the board.
 
 ### Offline Behavior
 

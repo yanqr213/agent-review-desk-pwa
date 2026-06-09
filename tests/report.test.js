@@ -69,6 +69,9 @@ test("exportMarkdownReport includes overview and item details", () => {
 
   assert.match(report, /^# Weekly Review/);
   assert.match(report, /条目总数：2/);
+  assert.match(report, /处理优先级/);
+  assert.match(report, /优先处理队列/);
+  assert.match(report, /现在处理/);
   assert.match(report, /Critical migration/);
   assert.match(report, /Wait for approval/);
   assert.match(report, /db\/migration\.sql/);

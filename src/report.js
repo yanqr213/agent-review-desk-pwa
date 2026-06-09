@@ -2,7 +2,10 @@ import {
   CI_DEFINITIONS,
   RISK_DEFINITIONS,
   STATUS_DEFINITIONS,
+  TRIAGE_DEFINITIONS,
   getDashboardStats,
+  getTriageLane,
+  getTriageSummary,
   groupItems,
   sortItems,
   toPortableDataset
@@ -16,6 +19,7 @@ export function buildReportModel(items, options = {}) {
     reviewer: options.reviewer || "",
     scope: options.scope || "当前筛选结果",
     stats: getDashboardStats(sortedItems),
+    triage: getTriageSummary(sortedItems),
     groups: groupItems(sortedItems, options.groupBy || "project"),
     items: sortedItems
   };
@@ -44,6 +48,10 @@ export function exportMarkdownReport(items, options = {}) {
     `- 变更文件：${report.stats.changedFiles}`,
     `- 增删行：+${report.stats.additions} / -${report.stats.deletions}`,
     "",
+    "### 处理优先级",
+    "",
+    countTable(report.stats.byTriage, TRIAGE_DEFINITIONS),
+    "",
     "### 状态分布",
     "",
     countTable(report.stats.byStatus, STATUS_DEFINITIONS),
@@ -52,9 +60,29 @@ export function exportMarkdownReport(items, options = {}) {
     "",
     countTable(report.stats.byRisk, RISK_DEFINITIONS),
     "",
-    "## 条目明细",
+    "## 优先处理队列",
     ""
   ];
+
+  const activeTriage = report.triage.lanes.filter((lane) => lane.key !== "done" && lane.items.length);
+  if (!activeTriage.length) {
+    lines.push("- 当前没有需要继续处理的条目。", "");
+  } else {
+    for (const lane of activeTriage) {
+      lines.push(`### ${lane.label} (${lane.items.length})`, "");
+      for (const item of lane.items.slice(0, 8)) {
+        lines.push(
+          `- ${escapeMarkdown(item.title)} · ${escapeMarkdown(item.project)} · ${RISK_DEFINITIONS[item.risk].label}风险 · CI ${CI_DEFINITIONS[item.ci.status].label}`
+        );
+      }
+      if (lane.items.length > 8) {
+        lines.push(`- 还有 ${lane.items.length - 8} 条未列出。`);
+      }
+      lines.push("");
+    }
+  }
+
+  lines.push("## 条目明细", "");
 
   for (const group of report.groups) {
     lines.push(`### ${escapeMarkdown(group.label)} (${group.items.length})`, "");
@@ -85,6 +113,7 @@ function renderItem(item) {
     `- 代理：${escapeMarkdown(item.agent)}`,
     `- 状态：${STATUS_DEFINITIONS[item.status].label}`,
     `- 风险：${RISK_DEFINITIONS[item.risk].label}`,
+    `- 处理优先级：${TRIAGE_DEFINITIONS[getTriageLane(item)].label}`,
     `- CI：${CI_DEFINITIONS[item.ci.status].label}`,
     `- 评分：${item.score || "未评分"}`
   ];
